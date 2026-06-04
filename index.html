@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+<meta name="theme-color" content="#7B3B5E">
+<title>Happy Fit Konstanz — Fitness Tracker</title>
+<style>
+:root{--rose:#C2556E;--plum:#7B3B5E;--pink:#F7E6ED;--green:#3D8B5E;
+      --amber:#D08030;--gold:#C9963A;--teal:#3A7D8C;--gray:#7A7A8A;}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;margin:0;padding:0;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+     background:#EEE5EC;color:#1E1E2E;font-size:15px;min-height:100vh;}
+.hdr{background:var(--plum);color:#fff;padding:12px 16px;
+     position:sticky;top:0;z-index:100;display:flex;
+     justify-content:space-between;align-items:center;
+     box-shadow:0 2px 14px rgba(0,0,0,.3);}
+.hdr-t{font-weight:800;font-size:15px;line-height:1.2;}
+.hdr-s{font-size:11px;opacity:.6;margin-top:2px;}
+.badge{font-size:11px;font-weight:700;padding:5px 11px;border-radius:20px;transition:all .3s;}
+.badge.saved{background:rgba(110,231,183,.2);color:#6EE7B7;}
+.badge.saving{background:rgba(255,255,255,.1);color:#E8A0B4;}
+.tabs{display:flex;overflow-x:auto;background:#fff;
+      border-bottom:3px solid var(--pink);
+      position:sticky;top:52px;z-index:99;scrollbar-width:none;}
+.tabs::-webkit-scrollbar{display:none;}
+.tab{flex-shrink:0;padding:11px 12px;font-size:12px;font-weight:700;
+     color:var(--gray);border:none;background:#fff;cursor:pointer;
+     border-bottom:3px solid transparent;margin-bottom:-3px;
+     white-space:nowrap;transition:color .15s;}
+.tab.active{color:var(--rose);border-bottom-color:var(--rose);}
+.pg{padding:14px;max-width:520px;margin:0 auto;padding-bottom:60px;}
+.card{background:#fff;border-radius:18px;overflow:hidden;
+      margin-bottom:14px;box-shadow:0 1px 8px rgba(0,0,0,.07);}
+.ch{padding:12px 16px;color:#fff;font-weight:700;font-size:13px;}
+.cn{padding:10px 16px;font-size:12px;font-weight:600;line-height:1.5;}
+.cb{padding:15px;}
+.ex{border-radius:18px;overflow:hidden;margin-bottom:11px;border:1.5px solid #E5E7EB;}
+.exh{padding:12px 14px;}
+.bdg{display:inline-block;font-size:11px;font-weight:800;padding:3px 10px;
+     border-radius:20px;color:#fff;margin-right:6px;margin-bottom:3px;flex-shrink:0;}
+.exn{font-size:14px;font-weight:700;line-height:1.3;}
+.exs{font-size:12px;color:var(--gray);margin-top:2px;line-height:1.4;}
+.ext{font-size:12px;font-weight:700;margin-top:5px;}
+.exb{background:#fff;padding:11px 14px;}
+.sr{display:flex;align-items:center;gap:8px;margin-bottom:9px;}
+.sr:last-child{margin-bottom:0;}
+.sl{font-size:11px;font-weight:800;color:var(--gray);width:38px;flex-shrink:0;}
+.sx{color:#D1D5DB;font-size:18px;flex-shrink:0;}
+input,textarea{width:100%;padding:11px 13px;
+  border:1.5px solid #E5E7EB;border-radius:12px;font-size:16px;
+  background:#fff;color:#1E1E2E;-webkit-appearance:none;
+  font-family:inherit;transition:border-color .2s;}
+input:focus,textarea:focus{outline:none;border-color:var(--rose);}
+.sm{width:68px!important;text-align:center;}
+textarea{resize:none;}
+.ck{width:26px;height:26px;min-width:26px;border-radius:8px;
+    border:2px solid var(--rose);background:#fff;display:flex;
+    align-items:center;justify-content:center;font-size:15px;
+    color:#fff;cursor:pointer;flex-shrink:0;user-select:none;transition:all .15s;}
+.ck.on{background:var(--rose);}
+.ckw{display:flex;align-items:center;gap:10px;cursor:pointer;padding:2px 0;}
+.ckl{font-size:14px;color:#333;line-height:1.3;cursor:pointer;user-select:none;}
+.sc{display:flex;gap:14px;flex-wrap:wrap;}
+.scc{display:flex;flex-direction:column;align-items:center;gap:4px;}
+.scn{font-size:11px;font-weight:700;color:var(--gray);}
+.pills{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;
+       margin-bottom:14px;scrollbar-width:none;}
+.pills::-webkit-scrollbar{display:none;}
+.pill{flex-shrink:0;padding:8px 15px;border-radius:12px;font-size:13px;
+      font-weight:700;cursor:pointer;border:2px solid #E5E7EB;
+      background:#fff;color:var(--gray);transition:all .15s;}
+.pill.active{background:var(--rose);color:#fff;border-color:var(--rose);
+             box-shadow:0 3px 10px rgba(194,85,110,.3);}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:11px;}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;}
+.fl{font-size:11px;font-weight:700;color:var(--gray);margin-bottom:6px;}
+.sp{margin-bottom:13px;}
+.sh{padding:20px 16px;color:#fff;}
+.sl2{font-size:11px;font-weight:700;opacity:.6;letter-spacing:1.5px;
+     text-transform:uppercase;margin-bottom:3px;}
+.st{font-size:20px;font-weight:800;margin-bottom:2px;}
+.ss{font-size:13px;opacity:.85;}
+.ws{background:#FFF6EC;padding:10px 15px;font-size:12px;
+    font-weight:600;color:var(--amber);line-height:1.5;}
+.mr{display:flex;align-items:center;gap:10px;padding:12px 15px;
+    border-bottom:1px solid #F5F5F7;}
+.mr:last-child{border-bottom:none;}
+.mid{font-size:11px;font-weight:800;padding:4px 10px;border-radius:20px;
+     color:#fff;min-width:44px;text-align:center;flex-shrink:0;}
+.mn{font-size:14px;font-weight:700;}
+.mc{font-size:11px;font-weight:600;margin-top:1px;}
+.si{padding:13px 15px;border-bottom:1px solid #F5F5F7;}
+.si:last-child{border-bottom:none;}
+.wl{font-size:11px;font-weight:700;text-align:center;margin-bottom:4px;}
+.msr{margin-bottom:18px;}
+.msl{font-size:14px;font-weight:700;color:var(--plum);margin-bottom:6px;}
+.msh{font-size:11px;color:var(--gray);margin-left:5px;font-weight:400;}
+.mswl{font-size:11px;font-weight:700;text-align:center;margin-bottom:4px;}
+.rq{font-size:14px;font-weight:700;color:#333;margin:14px 0 7px;}
+.clr{display:block;width:100%;padding:13px;background:#fff;
+     border:2px solid #E5E7EB;border-radius:12px;font-size:14px;
+     font-weight:700;color:var(--gray);cursor:pointer;text-align:center;
+     margin-top:8px;font-family:inherit;}
+</style>
+</head>
+<body>
+<div class="hdr">
+  <div>
+    <div class="hdr-t">Happy Fit Konstanz</div>
+    <div class="hdr-s">4+1 Sessions &middot; Korrekte Maschinen &middot; Auto-Speichern</div>
+  </div>
+  <div class="badge saved" id="badge">&#10003; Gespeichert</div>
+</div>
+<div class="tabs" id="tabs">
+  <button class="tab" data-tab="week" onclick="showTab('week',this)">&#128197; Woche</button>
+  <button class="tab" data-tab="s1"   onclick="showTab('s1',this)">&#129466; S1 Glutes</button>
+  <button class="tab" data-tab="s2"   onclick="showTab('s2',this)">&#128170; S2 R&uuml;cken</button>
+  <button class="tab" data-tab="s3"   onclick="showTab('s3',this)">&#129466; S3 Quads</button>
+  <button class="tab" data-tab="s4"   onclick="showTab('s4',this)">&#128170; S4 Schulter</button>
+  <button class="tab" data-tab="s5"   onclick="showTab('s5',this)">&#11088; S5 Optional</button>
+  <button class="tab" data-tab="prog" onclick="showTab('prog',this)">&#128200; Progress</button>
+  <button class="tab" data-tab="masch"onclick="showTab('masch',this)">&#127947; Maschinen</button>
+  <button class="tab" data-tab="body" onclick="showTab('body',this)">&#128207; Body</button>
+  <button class="tab" data-tab="review"onclick="showTab('review',this)">&#128221; Review</button>
+</div>
+<div class="pg" id="pg"></div>
+<script>
+/* ══════════════════════════════════════════════════════════════
+   LOCALSTORAGE — automatisches Speichern & Wiederherstellen
+   ══════════════════════════════════════════════════════════════ */
+const SK = 'hfk_2026';
+let D = {};
+let T;
+
+function lsLoad() {
+  try { const r = localStorage.getItem(SK); if (r) D = JSON.parse(r); }
+  catch(e) { D = {}; }
+}
+
+function lsSave() {
+  setBadge('saving');
+  clearTimeout(T);
+  T = setTimeout(() => {
+    try { localStorage.setItem(SK, JSON.stringify(D)); }
+    catch(e) { console.warn('Speichern fehlgeschlagen', e); }
+    setBadge('saved');
+  }, 400);
+}
+
+function g(k, def) {
+  if (def === undefined) def = '';
+  return D[k] !== undefined ? D[k] : def;
+}
+
+function sv(k, v) { D[k] = v; lsSave(); }
+
+function toggleCk(k) {
+  D[k] = !g(k, false);
+  document.querySelectorAll('[data-ck="' + k + '"]').forEach(el => applyBox(el, !!D[k]));
+  lsSave();
+}
+
+function applyBox(el, on) {
+  el.classList.toggle('on', on);
+  el.textContent = on ? '\u2713' : '';
+}
+
+function pickSc(prefix, n) {
+  var was = !!g(prefix + '_' + n, false);
+  for (var i = 1; i <= 5; i++) D[prefix + '_' + i] = (i === n && !was);
+  document.querySelectorAll('[data-sc="' + prefix + '"]').forEach((el, i) => {
+    applyBox(el, !!D[prefix + '_' + (i + 1)]);
+  });
+  lsSave();
+}
+
+/* Nach jedem Tab-Render alle Felder mit gespeicherten Werten füllen */
+function restoreAll() {
+  document.querySelectorAll('[data-k]').forEach(el => {
+    const v = g(el.getAttribute('data-k'), '');
+    if (v !== '') el.value = v;
+  });
+  document.querySelectorAll('[data-ck]').forEach(el => {
+    applyBox(el, !!g(el.getAttribute('data-ck'), false));
+  });
+}
+
+function setBadge(s) {
+  const b = document.getElementById('badge');
+  if (!b) return;
+  b.textContent = s === 'saving' ? '\u231B Speichert\u2026' : '\u2713 Gespeichert';
+  b.className = 'badge ' + s;
+}
+
+function clearAll() {
+  if (confirm('Wirklich ALLE gespeicherten Daten l\u00f6schen? Dies kann nicht r\u00fckg\u00e4ngig gemacht werden.')) {
+    D = {};
+    try { localStorage.removeItem(SK); } catch(e) {}
+    renderTab(curTab);
+    setBadge('saved');
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   HTML-HELFER
+   ══════════════════════════════════════════════════════════════ */
+
+function inp(k, ph, type, cls) {
+  ph   = ph   || '';
+  type = type || 'text';
+  cls  = cls  || '';
+  const v = String(g(k, '')).replace(/"/g, '&quot;').replace(/</g, '&lt;');
+  return '<input data-k="' + k + '" type="' + type + '" placeholder="' + ph +
+    '" class="' + cls + '" value="' + v + '" oninput="sv(\'' + k + '\',this.value)"' +
+    (type === 'number' ? ' step="0.5"' : '') + '>';
+}
+
+function ta(k, rows, ph) {
+  rows = rows || 2; ph = ph || '';
+  const v = String(g(k, '')).replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  return '<textarea data-k="' + k + '" rows="' + rows + '" placeholder="' + ph +
+    '" oninput="sv(\'' + k + '\',this.value)">' + v + '</textarea>';
+}
+
+function ck(k, label, col, sz) {
+  col = col || 'var(--rose)'; sz = sz || 26;
+  const on = !!g(k, false);
+  return '<label class="ckw" onclick="toggleCk(\'' + k + '\')">' +
+    '<div class="ck' + (on ? ' on' : '') + '" data-ck="' + k +
+    '" style="border-color:' + col + ';width:' + sz + 'px;height:' + sz + 'px;' +
+    (on ? 'background:' + col + ';' : '') + '">' + (on ? '\u2713' : '') + '</div>' +
+    (label ? '<span class="ckl">' + label + '</span>' : '') + '</label>';
+}
+
+function scEl(prefix, col) {
+  col = col || 'var(--rose)';
+  var h = '<div class="sc">';
+  for (var i = 1; i <= 5; i++) {
+    const on = !!g(prefix + '_' + i, false);
+    h += '<div class="scc"><div class="ck' + (on ? ' on' : '') +
+      '" data-ck="' + prefix + '_' + i + '" data-sc="' + prefix +
+      '" style="border-color:' + col + ';' + (on ? 'background:' + col + ';' : '') +
+      '" onclick="pickSc(\'' + prefix + '\',' + i + ')">' + (on ? '\u2713' : '') +
+      '</div><div class="scn">' + i + '</div></div>';
+  }
+  return h + '</div>';
+}
+
+function watCk(p) {
+  return '<div style="display:flex;gap:14px;flex-wrap:wrap;">' +
+    ck(p+'_lt','&lt;1.5 L','var(--teal)') +
+    ck(p+'_2l','2.0 L','var(--teal)') +
+    ck(p+'_hi','2.5 L+','var(--teal)') + '</div>';
+}
+
+function postCard(sk, col) {
+  return '<div class="card"><div class="ch" style="background:' + col + '">Nach dem Training</div>' +
+    '<div class="cb">' +
+    '<div class="sp"><div class="fl">Energie (1=niedrig &middot; 5=hoch)</div>' + scEl(sk+'_en',col) + '</div>' +
+    '<div class="sp g2"><div><div class="fl">Schlaf letzte Nacht (h)</div>' + inp(sk+'_sleep','h','number') + '</div></div>' +
+    '<div class="sp"><div class="fl">Wasser heute</div>' + watCk(sk+'_wat') + '</div>' +
+    '<div class="sp">' + ck(sk+'_prot','Protein-Ziel heute erreicht \u2713','var(--green)') + '</div>' +
+    '<div><div class="fl">Session-Notizen</div>' + ta(sk+'_notes',3,'Wie hat es sich angef\u00fchlt? Was verbessern?') + '</div>' +
+    '</div></div>';
+}
+
+function exCard(sk, ek, mach, name, sub, tgt, sets, col, warn, warmup) {
+  warn   = warn   || false;
+  warmup = warmup || false;
+  const mc  = warn ? 'var(--amber)' : (warmup ? '#9CA3AF' : col);
+  const bc  = warn ? 'var(--amber)' : (warmup ? '#E5E7EB' : col + '50');
+  const bg  = warn ? '#FFF6EC'      : (warmup ? '#F5F5F7' : col + '12');
+  const done = !!g(sk + '_' + ek + '_done', false);
+  let h = '<div class="ex" style="border-color:' + bc + ';">' +
+    '<div class="exh" style="background:' + bg + ';">' +
+    '<div style="display:flex;align-items:flex-start;gap:10px;">';
+  if (!warmup && sets > 0)
+    h += '<div class="ck' + (done ? ' on' : '') + '" data-ck="' + sk + '_' + ek + '_done"' +
+      ' style="border-color:' + mc + ';' + (done ? 'background:' + mc + ';' : '') +
+      'width:24px;height:24px;font-size:14px;margin-top:2px;"' +
+      ' onclick="toggleCk(\'' + sk + '_' + ek + '_done\')">' + (done ? '\u2713' : '') + '</div>';
+  h += '<div>' +
+    '<div><span class="bdg" style="background:' + mc + ';">' + mach + '</span>' +
+    '<span class="exn" style="color:' + (warn ? 'var(--amber)' : '#1E1E2E') + '">' + name + '</span></div>' +
+    (sub ? '<div class="exs">' + sub + '</div>' : '') +
+    (tgt && tgt !== '\u2014' ? '<div class="ext" style="color:' + mc + ';">\uD83C\uDFAF ' + tgt + '</div>' : '') +
+    '</div></div></div>';
+  if (!warmup && sets > 0) {
+    h += '<div class="exb">';
+    for (let s = 1; s <= sets; s++)
+      h += '<div class="sr"><span class="sl">Set ' + s + '</span>' +
+        inp(sk+'_'+ek+'_s'+s+'_kg','kg','number','sm') +
+        '<span class="sx">\u00d7</span>' +
+        inp(sk+'_'+ek+'_s'+s+'_rp','Wdh','number','sm') + '</div>';
+    h += '</div>';
+  }
+  return h + '</div>';
+}
+
+function sessHead(sk, lbl, title, sub, col, note) {
+  return '<div class="card"><div class="sh" style="background:' + col + '">' +
+    '<div class="sl2">' + lbl + '</div><div class="st">' + title + '</div>' +
+    '<div class="ss">' + sub + '</div></div>' +
+    (note ? '<div class="cn" style="background:' + col + '20;color:' + col + '">' + note + '</div>' : '') +
+    '<div class="cb"><div class="sp g2">' +
+    '<div><div class="fl">Datum</div>' + inp(sk+'_date','','date') + '</div>' +
+    '<div><div class="fl">Dauer (min)</div>' + inp(sk+'_dur','min','number') + '</div>' +
+    '</div><div style="display:flex;gap:14px;flex-wrap:wrap;">' +
+    ck(sk+'_done','Session fertig \u2713','var(--green)') +
+    ck(sk+'_skip','\u00dcbersprungen','var(--amber)') +
+    '</div></div></div>';
+}
+
+/* ══════════════════════════════════════════════════════════════
+   SESSIONS
+   ══════════════════════════════════════════════════════════════ */
+
+function tabS1() {
+  const C = '#C2556E';
+  return sessHead('s1','Session 1','Lower Body A','Glutes &amp; Hamstrings',C,
+    'Squeeze Ges\u00e4\u00df oben bei jedem Kickback. Fersen beim Leg Press. #33 muss 35+ kg sein!')
+  + exCard('s1','wu','WARM-UP','5 min Laufband + H\u00fcftkreisen + 15 Ges\u00e4\u00dfbr\u00fccken','','\u2014',0,C,false,true)
+  + exCard('s1','e1','#34','Kickbacks \u2014 Po &amp; Beine','Squeeze oben, 1 Sek halten','20\u201325 kg \u00d7 15 Wdh',4,C)
+  + exCard('s1','e2','#11','Beinbeuger LifeFitness','3 Sek langsam absenken \u2014 kontrolliert','27.5 \u2192 30 kg \u00d7 12 Wdh',4,C)
+  + exCard('s1','e3','#30','Beinpresse \u2014 F\u00fc\u00dfe HOCH','Ges\u00e4\u00df-Betonung, durch Fersen dr\u00fccken','70\u201385 kg \u00d7 12 Wdh',4,C)
+  + exCard('s1','e4','#35','Adduktionsmaschine','Voller Bewegungsumfang, kontrolliert','53 kg \u00d7 20 Wdh',3,C)
+  + exCard('s1','e5','#36','Abduktionsmaschine','Pause an weitester Stelle','53 kg \u00d7 20 Wdh',3,C)
+  + exCard('s1','e6','#80','Hyperextension','Stopp bei parallel \u2014 nicht \u00fcberstrecken!','K\u00f6rpergewicht \u00d7 15 Wdh',3,C)
+  + exCard('s1','e7','\u2014','Freie Zeile \u2014 eigene \u00dcbung','','',3,C)
+  + postCard('s1',C);
+}
+
+function tabS2() {
+  const C = '#7B3B5E';
+  return sessHead('s2','Session 2','Upper Body A','R\u00fccken &middot; Core',C,
+    '#17 bei 30 kg \u2014 weiter steigern! #07 Rudern ist die echte Rudermaschine. #60 Bauch Crunch bereits in deiner Routine!')
+  + exCard('s2','wu','WARM-UP','Armkreisen \u00d720 + Schulterrollen \u00d710','','\u2014',0,C,false,true)
+  + exCard('s2','e1','#17','Latzugmaschine \u2014 breiter Griff','Zur Brust ziehen, kontrolliert zur\u00fcck','30 \u2192 33 kg \u00d7 12 Wdh \u2713',4,C)
+  + exCard('s2','e2','#07','Rudern LifeFitness','Ellbogen nah am K\u00f6rper, Squeeze am Ende','20\u201327.5 kg \u00d7 12 Wdh',4,C)
+  + exCard('s2','e3','#09','Butterfly Reverse LifeFitness','Hintere Schulter \u2014 leichtes Gewicht, volle Kontrolle','Leicht beginnen \u00d7 15 Wdh',3,C)
+  + exCard('s2','e4','#22','R\u00fcckenstrecker','Stopp bei parallel \u2014 NICHT \u00fcberstrecken!','20 \u2192 22 kg \u00d7 15 Wdh',3,C)
+  + exCard('s2','e5','#60','Basic Bauch Crunch','Du benutzt diese bereits \u2014 weiter so!','3 \u00d7 15\u201320 Wdh',3,C)
+  + exCard('s2','e6','#08','Bauch Rotation LifeFitness','Core-Rotation \u2014 beide Seiten gleichm\u00e4\u00dfig','20\u201325 kg \u00d7 15 Wdh/Seite',3,C)
+  + exCard('s2','e7','\u2014','Freie Zeile \u2014 eigene \u00dcbung','','',3,C)
+  + postCard('s2',C);
+}
+
+function tabS3() {
+  const C = '#A03060';
+  return sessHead('s3','Session 3','Lower Body B','Quads &amp; Full Legs',C,
+    '\u26a0 Maschine #33 MUSS heute 35+ kg sein. Du hast 25 kg gemacht \u2014 sofort erh\u00f6hen! Kein Kompromiss.')
+  + exCard('s3','wu','WARM-UP','5 min Rad + Beinschwingen + 15 langsame Kniebeugen','','\u2014',0,C,false,true)
+  + exCard('s3','e1','#30','Beinpresse \u2014 F\u00fc\u00dfe UNTEN','Quad-Betonung, tiefere Range','80\u2013100 kg \u00d7 10 Wdh',4,C)
+  + exCard('s3','e2','#33','Beinstrecker \u26a0 MIN 35 KG JETZT','Du hast 25 kg gemacht \u2014 heute mindestens 35 kg!','35\u201342 kg \u00d7 12 Wdh',4,C,true)
+  + exCard('s3','e3','#10','Beinpresse LifeFitness','Du hast 72.5 kg genutzt \u2014 weiter so!','72.5 kg \u00d7 15 Wdh',3,C)
+  + exCard('s3','e4','#32','Beinbeuger sitzend','Anders als #11 \u2014 sitzende Position','Startgewicht \u00d7 12 Wdh',3,C)
+  + exCard('s3','e5','#35','Adduktionsmaschine','Leichteres Volumen \u2014 bereits in S1 gemacht','53 kg \u00d7 20 Wdh',2,C)
+  + exCard('s3','e6','#36','Abduktionsmaschine','Letzter Satz: langsam mit 2-Sek Pause','53 kg \u00d7 20 Wdh',2,C)
+  + exCard('s3','e7','\u2014','Freie Zeile \u2014 eigene \u00dcbung','','',3,C)
+  + postCard('s3',C);
+}
+
+function tabS4() {
+  const C = '#5B3080';
+  return sessHead('s4','Session 4','Upper Body B','Schultern &middot; Arme &middot; Core',C,
+    '#12 Schulterpresse \u2014 du hast 12.5 kg benutzt, steigere auf 15\u201317.5 kg. #26 f\u00fcr Klimmz\u00fcge oder Dips.')
+  + exCard('s4','wu','WARM-UP','Armkreisen + Schulter-Mobilit\u00e4t + Nackenrollen','','\u2014',0,C,false,true)
+  + exCard('s4','e1','#12','Schulterpresse LifeFitness','Du hast 12.5 kg \u2014 steigere jetzt!','12.5 \u2192 17.5 kg \u00d7 12 Wdh',4,C)
+  + exCard('s4','e2','#29','Seithebemaschine','Langsam heben, 1 Sek oben halten','8\u201314 kg \u00d7 15 Wdh',3,C)
+  + exCard('s4','e3','#26','Klimmz\u00fcge / Dips unterst\u00fctzt','Assistierte Klimmz\u00fcge ODER Dips \u2014 w\u00e4hle eine','Leicht beginnen \u00d7 10 Wdh',3,C)
+  + exCard('s4','e4','#60','Basic Bauch Crunch \u2014 Core Finish','Voller Bewegungsumfang, kein Schwingen','3 \u00d7 20 Wdh',3,C)
+  + exCard('s4','e5','#08','Bauch Rotation LifeFitness','Schr\u00e4gmuskel \u2014 beide Seiten gleichm\u00e4\u00dfig','20\u201325 kg \u00d7 15 Wdh/Seite',3,C)
+  + exCard('s4','e6','\u2014','Freie Zeile \u2014 eigene \u00dcbung','','',3,C)
+  + postCard('s4',C);
+}
+
+function tabS5() {
+  const C = '#C9963A';
+  return sessHead('s5','Session 5 \u2605 Optional','Full Body Power',
+    '5. Session \u2014 nur wenn Energie wirklich hoch ist',C,
+    'Cardio ZUERST vor dem Heben. Nur nutzen wenn du wirklich 5\u00d7 diese Woche trainierst.')
+  + exCard('s5','e0','CARDIO','20 min Laufband / Rad / Ellipse','125\u2013140 bpm Ziel-Herzfrequenz \u2014 ZUERST machen!','20 Minuten \u2014 vor dem Heben!',0,C,false,true)
+  + exCard('s5','e1','#30','Beinpresse \u2014 SCHWER','Schlage dein Session-3-Gewicht','90\u2013115 kg \u00d7 8 Wdh',4,C)
+  + exCard('s5','e2','#17','Latzugmaschine \u2014 breiter Griff','Match oder schlage dein S2-Gewicht','30\u201335 kg \u00d7 12 Wdh',3,C)
+  + exCard('s5','e3','#12','Schulterpresse LifeFitness','Steigere vom letzten S4-Gewicht','15\u201320 kg \u00d7 12 Wdh',3,C)
+  + exCard('s5','e4','#07','Rudern LifeFitness','Kraftzug, Kontraktion 1 Sek halten','22\u201328 kg \u00d7 12 Wdh',3,C)
+  + exCard('s5','e5','#34','Kickbacks BURNOUT','4 \u00d7 20 mit 2-Sek Squeeze oben','20\u201325 kg \u00d7 20 Wdh',4,C)
+  + exCard('s5','e6','#60','Basic Bauch Crunch \u2014 stark beenden','Voller Bewegungsumfang','3 \u00d7 20 Wdh',3,C)
+  + exCard('s5','e7','\u2014','Freie Zeile \u2014 eigene \u00dcbung','','',3,C)
+  + postCard('s5',C);
+}
+
+/* ══════════════════════════════════════════════════════════════
+   WOCHE
+   ══════════════════════════════════════════════════════════════ */
+const DAYS = [{k:'mon',l:'Mo'},{k:'tue',l:'Di'},{k:'wed',l:'Mi'},
+              {k:'thu',l:'Do'},{k:'fri',l:'Fr'},{k:'sat',l:'Sa'},{k:'sun',l:'So'}];
+const DN = {mon:'Montag',tue:'Dienstag',wed:'Mittwoch',
+            thu:'Donnerstag',fri:'Freitag',sat:'Samstag',sun:'Sonntag'};
+let curDay = 'mon';
+
+function tabWeek() {
+  const dk = curDay;
+  const pills = DAYS.map(d =>
+    '<div class="pill' + (d.k===dk?' active':'') + '" onclick="switchDay(\'' + d.k + '\')">' + d.l + '</div>'
+  ).join('');
+  return '<div class="card"><div class="ch" style="background:var(--plum)">\uD83D\uDCC5 Wochen-Info</div>' +
+    '<div class="cb"><div class="g2">' +
+    '<div><div class="fl">Woche #</div>' + inp('wk_num','z.B. 1') + '</div>' +
+    '<div><div class="fl">Gewicht (kg)</div>' + inp('wk_w','kg','number') + '</div>' +
+    '<div><div class="fl">Von</div>' + inp('wk_from','','date') + '</div>' +
+    '<div><div class="fl">Bis</div>' + inp('wk_to','','date') + '</div>' +
+    '</div></div></div>' +
+    '<div class="pills">' + pills + '</div>' +
+    '<div class="card"><div class="ch" style="background:var(--rose)">' + DN[dk] + ' \u2014 Tagesprotokoll</div>' +
+    '<div class="cb">' +
+    '<div class="sp" style="display:flex;gap:14px;flex-wrap:wrap;">' +
+      ck('d_'+dk+'_done','Trainiert \u2713','var(--green)') +
+      ck('d_'+dk+'_rest','Ruhetag','var(--gray)') +
+    '</div>' +
+    '<div class="sp g2">' +
+      '<div><div class="fl">Session # (1\u20135)</div>' + inp('d_'+dk+'_sess','z.B. S1') + '</div>' +
+      '<div><div class="fl">Dauer (min)</div>' + inp('d_'+dk+'_dur','min','number') + '</div>' +
+      '<div><div class="fl">Schlaf (h)</div>' + inp('d_'+dk+'_slp','h','number') + '</div>' +
+    '</div>' +
+    '<div class="sp"><div class="fl">Energie (1\u20135)</div>' + scEl('d_'+dk+'_en') + '</div>' +
+    '<div class="sp"><div class="fl">Schlafqualit\u00e4t (1\u20135)</div>' + scEl('d_'+dk+'_sq') + '</div>' +
+    '<div class="sp"><div class="fl">Wasser</div>' + watCk('d_'+dk+'_wat') + '</div>' +
+    '<div class="sp"><div class="fl">Stress (1\u20135)</div>' + scEl('d_'+dk+'_str') + '</div>' +
+    '<div class="sp">' + ck('d_'+dk+'_prot','Protein-Ziel erreicht \u2713','var(--green)') + '</div>' +
+    '<div><div class="fl">Notizen f\u00fcr ' + DN[dk] + '</div>' +
+      ta('d_'+dk+'_notes',2,'Wie war heute?') +
+    '</div></div></div>' +
+    '<div class="card"><div class="ch" style="background:var(--plum)">\uD83D\uDCDD Wochenreflexion</div>' +
+    '<div class="cb">' + ta('wk_ref',4,'Was lief gut? Was verbessern? Ziel n\u00e4chste Woche...') + '</div></div>';
+}
+
+function switchDay(d) { curDay = d; renderTab('week'); }
+
+/* ══════════════════════════════════════════════════════════════
+   FORTSCHRITT
+   ══════════════════════════════════════════════════════════════ */
+const MP = [
+  ['#07','Rudern LifeFitness','20\u201327.5 kg \u00d7 12','#7B3B5E',false,false],
+  ['#10','Beinpresse LifeFitness','72.5 kg \u00d7 15','#C2556E',false,false],
+  ['#11','Beinbeuger LifeFitness','27.5 \u2192 30 kg \u00d7 12','#C2556E',false,false],
+  ['#12','Schulterpresse LifeFitness','12.5 \u2192 17.5 kg \u00d7 12','#5B3080',false,false],
+  ['#17w','Latzugmaschine breiter Griff','30 \u2192 33 kg \u00d7 12 \u2713','#3D8B5E',false,true],
+  ['#17u','Latzugmaschine Unterhandgriff','28 kg \u00d7 12','#7B3B5E',false,false],
+  ['#22','R\u00fcckenstrecker','20 \u2192 22 kg \u00d7 15 \u2713','#3D8B5E',false,true],
+  ['#26','Klimmz\u00fcge / Dips unterst\u00fctzt','Leicht beginnen \u00d7 10','#5B3080',false,false],
+  ['#29','Seithebemaschine','8\u201314 kg \u00d7 15','#5B3080',false,false],
+  ['#30A','Beinpresse F\u00fc\u00dfe HOCH (S1)','70\u201385 kg \u00d7 12','#C2556E',false,false],
+  ['#30B','Beinpresse F\u00fc\u00dfe UNTEN (S3)','80\u2013100 kg \u00d7 10','#A03060',false,false],
+  ['#32','Beinbeuger sitzend','Startgewicht \u00d7 12','#A03060',false,false],
+  ['#33','Beinstrecker \u26a0','35+ kg \u00d7 12 \u2014 SOFORT!','#D08030',true,false],
+  ['#34','Kickbacks \u2014 Po &amp; Beine','20\u201325 kg \u00d7 15','#C2556E',false,false],
+  ['#35','Adduktionsmaschine','53 kg \u00d7 20','#C2556E',false,false],
+  ['#36','Abduktionsmaschine','53 kg \u00d7 20','#C2556E',false,false],
+  ['#60','Basic Bauch Crunch','14 \u2192 18+ Wdh \u00d7 3','#3A7D8C',false,false],
+  ['#80','Hyperextension','KG \u2192 +5 kg \u00d7 15','#3D8B5E',false,false],
+  ['#08','Bauch Rotation LifeFitness','20\u201325 kg \u00d7 15/Seite','#3A7D8C',false,false]
+];
+
+function tabProg() {
+  const rows = MP.map(([id,name,tgt,col,warn,good],i) => {
+    const tb = warn?'#FFF6EC':good?'#E6F5EC':'#F7E6ED';
+    const tc = warn?'#D08030':good?'#3D8B5E':'#C2556E';
+    var wks = '';
+    for (var w=1; w<=4; w++)
+      wks += '<div><div class="wl">Woche ' + w + '</div>' + inp('p_'+i+'_w'+w,'kg\u00d7Wdh') + '</div>';
+    return '<div class="si">' +
+      '<div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-bottom:5px;">' +
+      '<span class="bdg" style="background:' + col + '">' + id + '</span>' +
+      '<span style="font-size:14px;font-weight:700;">' + name + '</span></div>' +
+      '<div style="display:inline-block;font-size:12px;font-weight:700;padding:3px 9px;' +
+      'border-radius:8px;margin-bottom:9px;background:' + tb + ';color:' + tc +
+      '">\uD83C\uDFAF ' + tgt + '</div>' +
+      '<div class="g4">' + wks + '</div></div>';
+  }).join('');
+  return '<div class="card">' +
+    '<div class="ch" style="background:var(--plum)">\uD83D\uDCC8 Kraft-Fortschritt \u2014 4-Wochen Log</div>' +
+    '<div class="cn" style="background:#7B3B5E15;color:var(--plum)">Erh\u00f6he wenn ALLE S\u00e4tze + Wdh f\u00fcr 2 Sessions korrekt.' +
+    ' <span style="color:var(--amber)">\u26a0 #33 sofort auf 35 kg!</span></div>' +
+    '<div style="background:#fff">' + rows + '</div></div>';
+}
+
+/* ══════════════════════════════════════════════════════════════
+   MASCHINEN
+   ══════════════════════════════════════════════════════════════ */
+const MACHS = [
+  ['#07','Rudern LifeFitness','R\u00fccken','#7B3B5E'],
+  ['#08','Bauch Rotation LifeFitness','Core','#3A7D8C'],
+  ['#09','Butterfly Reverse LifeFitness','R\u00fccken','#7B3B5E'],
+  ['#10','Beinpresse LifeFitness','Beine','#C2556E'],
+  ['#11','Beinbeuger LifeFitness','Beine','#C2556E'],
+  ['#12','Schulterpresse LifeFitness','Schultern','#5B3080'],
+  ['#17','Latzugmaschine','R\u00fccken','#7B3B5E'],
+  ['#22','R\u00fcckenstrecker','R\u00fccken','#3D8B5E'],
+  ['#24','Rotationsmaschine','Core','#3A7D8C'],
+  ['#25','Nackendruckmaschine','Schultern','#5B3080'],
+  ['#26','Klimmz\u00fcge / Dips unterst\u00fctzt','R\u00fccken / Brust','#7B3B5E'],
+  ['#29','Seithebemaschine','Schultern','#5B3080'],
+  ['#30','Beinpresse / Beinpresse sitzend','Beine','#C2556E'],
+  ['#32','Beinbeuger sitzend','Beine','#C2556E'],
+  ['#33','Beinstrecker \u26a0 (MIN 35 KG)','Beine','#D08030'],
+  ['#34','Kickbacks','Ges\u00e4\u00df','#C2556E'],
+  ['#35','Adduktionsmaschine','Beine','#C2556E'],
+  ['#36','Abduktionsmaschine','Beine','#C2556E'],
+  ['#60','Basic Bauch Crunch','Core','#3A7D8C'],
+  ['#80','Hyperextension','R\u00fccken / Ges\u00e4\u00df','#3D8B5E']
+];
+
+function tabMasch() {
+  const rows = MACHS.map(([id,name,cat,col]) =>
+    '<div class="mr"><div class="mid" style="background:' + col + '">' + id + '</div>' +
+    '<div><div class="mn">' + name + '</div>' +
+    '<div class="mc" style="color:' + col + '">' + cat + '</div></div></div>'
+  ).join('');
+  return '<div class="card">' +
+    '<div class="ch" style="background:var(--rose)">\u26a1 Maschinen-Verzeichnis \u2014 Happy Fit Konstanz</div>' +
+    '<div class="cn" style="background:#C2556E15;color:var(--rose)">Alle best\u00e4tigten Maschinen. Weitere Maschinen sind im Studio vorhanden.</div>' +
+    '<div style="background:#fff">' + rows + '</div></div>';
+}
+
+/* ══════════════════════════════════════════════════════════════
+   BODY MEASUREMENTS
+   ══════════════════════════════════════════════════════════════ */
+const BMES = [
+  ['Gewicht (kg)','Start: ~55.3 kg'],
+  ['K\u00f6rperfettanteil % (gesch\u00e4tzt)',''],
+  ['Taille auf Nabenh\u00f6he (cm)','\u2190 Hauptmessung Bauch'],
+  ['H\u00fcfte \u2014 breiteste Stelle (cm)',''],
+  ['Linker Oberschenkel \u2014 Mitte (cm)',''],
+  ['Ges\u00e4\u00df \u2014 vollste Stelle (cm)',''],
+  ['Brust \u2014 auf BH-H\u00f6he (cm)',''],
+  ['Oberarm \u2014 entspannt (cm)','']
+];
+const BWK = ['W0 Start','W2','W4','W6','W8','W10','W12'];
+
+function tabBody() {
+  const rows = BMES.map(([lbl,hint],i) => {
+    const cells = BWK.map((w,wi) =>
+      '<div><div class="mswl" style="color:' + (wi===0?'var(--rose)':'var(--gray)') + '">' + w + '</div>' +
+      inp('b_'+i+'_w'+wi,'\u2014') + '</div>'
+    ).join('');
+    return '<div class="msr"><div class="msl">' + lbl +
+      (hint ? '<span class="msh">' + hint + '</span>' : '') + '</div>' +
+      '<div class="g4">' + cells + '</div></div>';
+  }).join('');
+  return '<div class="card">' +
+    '<div class="ch" style="background:var(--rose)">\uD83D\uDCCF K\u00f6rperm\u00e4\u00dfe \u2014 12-Wochen Tracker</div>' +
+    '<div class="cn" style="background:#C2556E15;color:var(--rose)">' +
+    'Messen alle 2 Wochen \u2014 morgens, n\u00fcchtern, gleiche Bedingungen. 12-Wochen-Ergebnis bewerten, nicht 2-Wochen.</div>' +
+    '<div class="cb">' + rows +
+    '<div><div class="fl">Notizen</div>' + ta('b_notes',3,'Ver\u00e4nderungen, wie Kleidung sitzt...') + '</div>' +
+    '</div></div>';
+}
+
+/* ══════════════════════════════════════════════════════════════
+   REVIEW
+   ══════════════════════════════════════════════════════════════ */
+function tabReview() {
+  return '<div class="card"><div class="ch" style="background:var(--plum)">\uD83D\uDCCB Wochenreview</div>' +
+    '<div class="cb">' +
+    '<div class="rq">Was lief diese Woche gut?</div>' + ta('rv_w',2,'...') +
+    '<div class="rq">Was war schwierig oder wurde verpasst?</div>' + ta('rv_d',2,'...') +
+    '<div class="rq">Beste Session / stolzester Moment:</div>' + ta('rv_b',2,'...') +
+    '<div class="rq">Konkretes Ziel f\u00fcr n\u00e4chste Woche:</div>' + ta('rv_g',2,'...') +
+    '<div class="rq" style="margin-bottom:8px">Wochenenergie (1\u20135)</div>' + scEl('rv_en') +
+    '<div style="margin-top:14px;display:flex;flex-direction:column;gap:12px;">' +
+    ck('rv_nut','Ern\u00e4hrungsplan eingehalten?','var(--rose)') +
+    ck('rv_wat','2.5 L+ Wasser die meisten Tage?','var(--rose)') +
+    ck('rv_pro','Protein-Ziel t\u00e4glich erreicht?','var(--rose)') +
+    ck('rv_ses','Alle geplanten Sessions absolviert?','var(--rose)') +
+    '</div></div></div>' +
+    '<div class="card"><div class="ch" style="background:var(--rose)">\uD83D\uDCCA Monats-Auswertung</div>' +
+    '<div class="cb">' +
+    '<div class="sp g2">' +
+      '<div><div class="fl">Monat</div>' + inp('mn_name','z.B. Juni') + '</div>' +
+      '<div><div class="fl">Sessions (von ~16)</div>' + inp('mn_ses','Anzahl','number') + '</div>' +
+    '</div>' +
+    '<div style="display:flex;flex-direction:column;gap:12px;margin-bottom:14px;">' +
+    ck('mn_del','Deload-Woche absolviert \u2713','var(--green)') +
+    ck('mn_clo','Kleidung sitzt lockerer?','var(--rose)') +
+    ck('mn_def','Mehr Muskeldefinition sichtbar?','var(--rose)') +
+    ck('mn_pro','Gewicht bei 3+ Maschinen erh\u00f6ht?','var(--rose)') +
+    ck('mn_33','Maschine #33 jetzt bei 35+ kg?','var(--amber)') +
+    ck('mn_ptr','Protein-Ziel die meisten Tage?','var(--rose)') +
+    '</div>' +
+    '<div class="sp"><div class="fl">Monatliche Bewertung (1\u201310)</div>' + inp('mn_rat','Bewertung','number') + '</div>' +
+    '<div><div class="fl">Was n\u00e4chsten Monat anpassen?</div>' + ta('mn_adj',3,'\u00c4nderungen, neue Ziele...') + '</div>' +
+    '</div></div>' +
+    '<button class="clr" onclick="clearAll()">\uD83D\uDDD1 Alle gespeicherten Daten l\u00f6schen</button>';
+}
+
+/* ══════════════════════════════════════════════════════════════
+   ROUTING — mit localStorage-Wiederherstellung des aktiven Tabs
+   ══════════════════════════════════════════════════════════════ */
+const TABS = {week:tabWeek,s1:tabS1,s2:tabS2,s3:tabS3,s4:tabS4,
+              s5:tabS5,prog:tabProg,masch:tabMasch,body:tabBody,review:tabReview};
+let curTab = 's1';
+
+function renderTab(id) {
+  curTab = id;
+  /* aktiven Tab im localStorage merken */
+  try { localStorage.setItem('hfk_tab', id); } catch(e) {}
+  document.getElementById('pg').innerHTML = TABS[id]();
+  restoreAll();
+}
+
+function showTab(id, btn) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  renderTab(id);
+}
+
+/* ══════════════════════════════════════════════════════════════
+   START — Daten und letzten Tab wiederherstellen
+   ══════════════════════════════════════════════════════════════ */
+window.addEventListener('DOMContentLoaded', () => {
+  lsLoad();
+
+  /* Letzten aktiven Tab aus localStorage lesen */
+  let startTab = 's1';
+  try {
+    const saved = localStorage.getItem('hfk_tab');
+    if (saved && TABS[saved]) startTab = saved;
+  } catch(e) {}
+
+  /* Tab-Button aktivieren */
+  document.querySelectorAll('.tab').forEach(t => {
+    t.classList.remove('active');
+    if (t.getAttribute('data-tab') === startTab) t.classList.add('active');
+  });
+
+  renderTab(startTab);
+  setBadge('saved');
+});
+</script>
+</body>
+</html>
